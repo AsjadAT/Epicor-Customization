@@ -1,0 +1,20 @@
+UD103Adapter adpUDNew = new UD103Adapter(this.oTrans);
+adpUDNew.BOConnect();
+
+
+adpUDNew.GetaNewUD103(); 
+adpUDNew.UD103Data.UD103[0].Key1 = Convert.ToString(row["Key1"]);
+adpUDNew.UD103Data.UD103[0].Key2 = NewInternalLoadNum.ToString();				 
+adpUDNew.UD103Data.UD103[0].Key3 = Convert.ToString(row["Key3"]);
+adpUDNew.UD103Data.UD103[0].Key4 = Convert.ToString(row["Key4"]);
+adpUDNew.UD103Data.UD103[0].Key5 = Convert.ToString(row["Key5"]);
+adpUDNew.UD103Data.UD103[0].Date01 = Convert.ToDateTime(row["Date01"]);
+
+adpUDNew.UD103Data.UD103[0]["CarrierName_c"] = "";//Convert.ToString(row["CarrierName_c"]);	
+adpUDNew.UD103Data.UD103[0]["CarrierLoadNumber_c"] = "";//Convert.ToString(row["CarrierLoadNumber_c"]);
+adpUDNew.UD103Data.UD103[0]["TrailerNmber_c"] = "";//Convert.ToString(row["TrailerNmber_c"]);
+adpUDNew.UD103Data.UD103[0]["SCAC_c"] = "";//Convert.ToString(row["SCAC_c"]);
+
+adpUDNew.Update();
+
+adpUDNew.Dispose();
