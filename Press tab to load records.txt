@@ -1,0 +1,13 @@
+protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+{
+if (keyData == (Keys.Enter))
+{
+SendKeys.Send("{TAB}");
+}
+
+check this out
+
+
+
+
+https://stackoverflow.com/questions/371329/how-to-make-enter-on-a-textbox-act-as-tab-button
