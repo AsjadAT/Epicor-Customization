@@ -1,0 +1,25 @@
+private void UD04Form_Load(object sender, EventArgs args)
+	{
+		// Add Event Handler Code
+		int i = 1;
+ 
+	    EpiUltraGrid myGrid = (EpiUltraGrid)csm.GetNativeControlReference("7d8ecc1b-c658-4e1e-acbf-0924bbbe3622");
+	    myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_MemoType_c"].Header.VisiblePosition = 0;
+	    myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_MemoTitle_c"].Header.VisiblePosition = i++;
+	    myGrid.DisplayLayout.Bands[0].Columns["DocType_Description"].Header.VisiblePosition = i++;
+		myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_Comment_c"].Header.VisiblePosition = i++;
+	    myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_FilePath_c"].Header.VisiblePosition = i++;
+	    myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_DocVersion_c"].Header.VisiblePosition = i++;
+	    myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_CreationDate_c"].Header.VisiblePosition = i++;
+	    myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_Active_c"].Header.VisiblePosition = i++;
+	    myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_MemoDocSend_c"].Header.VisiblePosition = i++;
+	    myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_FilePath_c"].Header.VisiblePosition = i++;
+ 
+		// Set the width of the UD04_NV_FilePath_c column
+		myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_FilePath_c"].Width = 262; // Set the desired width
+ 
+		// Make the UD04_NV_Active_c column editable
+		//myGrid.DisplayLayout.Bands[0].Columns["UD04_NV_Active_c"].CellActivation = Activation.AllowEdit;
+ 
+		GetInDays();
+	}

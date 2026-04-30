@@ -1,0 +1,4 @@
+"%session.context.initialValueIn.ValueIn%"
+
+Web Link : -
+https://www.epiusers.help/t/determining-the-current-session-id-in-kinetic-customization/96005/2
