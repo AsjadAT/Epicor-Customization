@@ -1,0 +1,159 @@
+// **************************************************
+// Epicor Classic Tips & Tricks: Grid Selection + BAQ Custom Action
+// Added By Asjad Anware on 16th October 2025 
+// **************************************************
+
+
+//Add System.Refelction in using references, rest are mostly present in here
+
+using System;
+using System.Data;
+using System.Reflection;
+using System.Windows.Forms;
+using Infragistics.Win.UltraWinGrid;
+using Ice.UI;
+using Ice.Lib.Framework;
+
+public class TipsAndTricks
+{
+    // Grid & BAQ references
+    private EpiUltraGrid grdResults;
+    private BAQDataView dvPartsInRework;
+    private EpiDataView edvPartsView;
+
+    // Initialization: wire events and references
+    public void Initialize(EpiUltraGrid grid, EpiDataView edv)
+    {
+        grdResults = grid;
+        edvPartsView = edv;
+        dvPartsInRework = (BAQDataView)edv;
+
+        // Wire AfterSelectChange
+        grdResults.AfterSelectChange += new AfterSelectChangeEventHandler(grdResults_AfterSelectChange);
+    }
+
+    // -----------------------------
+    // Row Selection / Deselection
+    // -----------------------------
+    public void SelectAllRows()
+    {
+        foreach (UltraGridRow row in grdResults.Rows)
+        {
+            row.Selected = true;
+            if (row.Cells.Exists("Calculated_Selected"))
+                row.Cells["Calculated_Selected"].Value = true;
+        }
+    }
+
+    public void DeselectAllRows()
+    {
+        foreach (UltraGridRow row in grdResults.Rows)
+        {
+            row.Selected = false;
+            if (row.Cells.Exists("Calculated_Selected"))
+                row.Cells["Calculated_Selected"].Value = false;
+        }
+    }
+
+    // -----------------------------
+    // Keep Calculated_Selected in sync with grid selection
+    // -----------------------------
+    private void grdResults_AfterSelectChange(object sender, AfterSelectChangeEventArgs e)
+    {
+        try
+        {
+            // Uncheck all first
+            foreach (UltraGridRow row in grdResults.Rows)
+            {
+                if (row.Cells.Exists("Calculated_Selected"))
+                    row.Cells["Calculated_Selected"].Value = false;
+            }
+
+            // Mark selected rows
+            foreach (UltraGridRow row in grdResults.Selected.Rows)
+            {
+                if (row.Cells.Exists("Calculated_Selected"))
+                    row.Cells["Calculated_Selected"].Value = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            EpiMessageBox.Show("Error updating selection state:\n" + ex.Message);
+        }
+    }
+
+    // -----------------------------
+    // Run BAQ Custom Action
+    // -----------------------------
+    public void RunBAQCustomAction(string actionId)
+    {
+        try
+        {
+            if (dvPartsInRework == null)
+                throw new Exception("BAQDataView reference is null.");
+
+            Assembly asm = Assembly.LoadFrom("Ice.Lib.EpiClientLib.dll");
+            Type updaterType = asm.GetType("Ice.Lib.Framework.BAQUpdater");
+            BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
+            MethodInfo runActionMethod = updaterType.GetMethod("BAQRunCustomAction", flags);
+
+            if (runActionMethod == null)
+                throw new Exception("BAQRunCustomAction method not found.");
+
+            object[] parameters = new object[] { dvPartsInRework, actionId };
+            runActionMethod.Invoke(null, parameters);
+
+            EpiMessageBox.Show($"Custom Action '{actionId}' executed successfully.");
+        }
+        catch (Exception ex)
+        {
+            EpiMessageBox.Show("Error running custom action:\n" + ex.Message);
+        }
+    }
+
+    // -----------------------------
+    // Example: Perform Quantity Adjust Button Click
+    // -----------------------------
+    public void btnPerformQuantityAdjust_Click(object sender, EventArgs args)
+    {
+        try
+        {
+            if (grdResults.Rows.Count == 0)
+            {
+                EpiMessageBox.Show("No records available for adjustment.");
+                return;
+            }
+
+            // Check if any row is selected
+            bool anySelected = false;
+            foreach (UltraGridRow row in grdResults.Rows)
+            {
+                if (row.Cells.Exists("Calculated_Selected") &&
+                    row.Cells["Calculated_Selected"].Value != null &&
+                    Convert.ToBoolean(row.Cells["Calculated_Selected"].Value))
+                {
+                    anySelected = true;
+                    break;
+                }
+            }
+
+            if (!anySelected)
+            {
+                EpiMessageBox.Show("Please select at least one part to perform quantity adjustment.");
+                return;
+            }
+
+            // Confirm with user
+            DialogResult dr = EpiMessageBox.Show("Proceed with Quantity Adjustment for selected parts?", "Confirm", MessageBoxButtons.YesNo);
+            if (dr == DialogResult.No) return;
+
+            // Run the BAQ Custom Action
+            RunBAQCustomAction("VD_ClearRework");
+
+        }
+        catch (Exception ex)
+        {
+            EpiMessageBox.Show("Error performing quantity adjustment:\n" + ex.Message);
+        }
+    }
+}
