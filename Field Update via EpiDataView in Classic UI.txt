@@ -1,0 +1,9 @@
+EpiDataView edvUD103 = ((EpiDataView)(this.oTrans.EpiDataViews["UD103"])); //Declare DataView
+System.Data.DataRow edvUD103Row = edvUD103.CurrentDataRow; //Declare DataRow
+
+//Modify field
+edvUD103Row.BeginEdit();
+edvUD103Row["CheckBox01"] = true;
+edvUD103Row["RowMod"] = "U";
+edvUD103Row.EndEdit();
+oTrans.Update();
